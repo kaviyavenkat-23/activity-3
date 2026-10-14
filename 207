@@ -1,0 +1,49 @@
+import java.util.*;
+
+class Solution {
+    public boolean canFinish(int numCourses, int[][] prerequisites) {
+        // Step 1: Initialize the adjacency list and in-degree array
+        List<List<Integer>> adj = new ArrayList<>();
+        for (int i = 0; i < numCourses; i++) {
+            adj.add(new ArrayList<>());
+        }
+        
+        int[] inDegree = new int[numCourses];
+        
+        // Step 2: Build the graph
+        // prerequisite[i] = [course, prereq] -> prereq -> course
+        for (int[] req : prerequisites) {
+            int course = req[0];
+            int prereq = req[1];
+            adj.get(prereq).add(course);
+            inDegree[course]++;
+        }
+        
+        // Step 3: Add all courses with 0 in-degree (no prerequisites) to the queue
+        Queue<Integer> queue = new LinkedList<>();
+        for (int i = 0; i < numCourses; i++) {
+            if (inDegree[i] == 0) {
+                queue.offer(i);
+            }
+        }
+        
+        // Step 4: Process the queue and keep track of how many courses we can successfully take
+        int count = 0;
+        while (!queue.isEmpty()) {
+            int current = queue.poll();
+            count++;
+            
+            // Reduce the in-degree of all neighbor courses
+            for (int neighbor : adj.get(current)) {
+                inDegree[neighbor]--;
+                // If a neighbor has no more prerequisites, it's ready to be taken
+                if (inDegree[neighbor] == 0) {
+                    queue.offer(neighbor);
+                }
+            }
+        }
+        
+        // If we were able to process all courses, no cycle exists
+        return count == numCourses;
+    }
+}
