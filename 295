@@ -1,0 +1,33 @@
+import java.util.PriorityQueue;
+
+class MedianFinder {
+    private PriorityQueue<Integer> smallMaxHeap; // Stores the smaller half
+    private PriorityQueue<Integer> largeMinHeap; // Stores the larger half
+
+    public MedianFinder() {
+        // Max-heap: highest number in the smaller half is at the top
+        smallMaxHeap = new PriorityQueue<>((a, b) -> Integer.compare(b, a));
+        // Min-heap: smallest number in the larger half is at the top
+        largeMinHeap = new PriorityQueue<>();
+    }
+    
+    public void addNum(int num) {
+        // Always push to the small max-heap first
+        smallMaxHeap.offer(num);
+        
+        // Ensure every element in smallMaxHeap is <= every element in largeMinHeap
+        largeMinHeap.offer(smallMaxHeap.poll());
+        
+        // Maintain the size property: smallMaxHeap can have at most 1 more element than largeMinHeap
+        if (smallMaxHeap.size() < largeMinHeap.size()) {
+            smallMaxHeap.offer(largeMinHeap.poll());
+        }
+    }
+    
+    public double findMedian() {
+        if (smallMaxHeap.size() > largeMinHeap.size()) {
+            return smallMaxHeap.peek();
+        }
+        return (smallMaxHeap.peek() + largeMinHeap.peek()) / 2.0;
+    }
+}
